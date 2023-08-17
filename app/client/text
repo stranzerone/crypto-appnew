@@ -1,0 +1,413 @@
+   {New.map((crypto) => (
+        <div>
+          <Box
+            key={crypto.id}
+            image={crypto.image}
+            symbol={crypto.symbol}
+            name={crypto.name}
+            price={crypto.amount}
+            quantity={crypto.stocks}
+          />
+        </div>
+      ))} 
+
+
+
+
+      const response= fetch("https://api.coingecko.com/api/v3/coins/markets?vs_currency=inr")
+      .then((response) => response.json())
+      .then((data) => {
+        // Update the state with the fetched cryptocurrencies data
+        setCryptocurrencies(data);
+       
+
+      })
+      .catch((error) => {
+        console.error("Error fetching cryptocurrencies data:", error);
+      });
+
+ 
+     
+
+      app.post("/data",(req,res)=>{
+        const  token  = req.cookies.token;
+         
+         console.log("check");
+         console.log(token);
+      
+         res.send("heoo")
+        const get = req.body;
+         Use.findOne({Token:token}).then(
+          (response)=>{
+            if(response){
+           const data = new Data({
+         user:response.username,
+         name:get.name,
+         image:get.image,
+         stocks:get.stocks,
+         amount:get.amount,
+         price:get.price,
+         check:get.check,
+         
+            })
+            data.save();
+            Use.findOne({Token:token}).then(
+              (res)=>{
+               console.log("oooo",get.amount);
+               const Owallet= res.Wallet;
+               const Nwallet=get.amount;
+               Use.updateOne({Token:token},{Wallet:Owallet-Nwallet}).then(
+                (respo)=>{
+                  console.log(respo);
+                }
+               )
+                console.log(Owallet,Nwallet);
+              }
+            )
+           
+      
+          }else{
+            console.log("no user")
+          }}
+         )
+       
+       
+         })
+      
+      
+
+         import React from "react";
+import "./Home.css";
+import Navbar from "./Navbar";
+function Home() {
+
+  return (
+    <div>
+    <Navbar />
+    <div className="home">
+      <div className="front"></div>
+      <h1 className="text">FUTURE IS HERE</h1>
+
+      <div className="bottom">
+        <div className="bimage"></div>
+        <div>
+          <button className="button">SIGN UP</button>
+        </div>
+      </div>
+      <div>
+        <h1 className="text">BE THE NEXT TO MILLIONIRE</h1>
+      </div>
+      <div className="cimage"></div>
+    </div>
+    </div>
+  );
+}
+
+export default Home;
+
+      
+      
+import "./Items.css";
+import "./Home.css";
+import { NavLink } from "react-router-dom";
+function Items(props) {
+
+  return (
+    <div>
+      <div className="body" id={props.key}>
+        <img
+          src={props.image}
+          alt="auto"
+          style={{
+            width: "30px",
+            alignContent: "center",
+            justifyContent: "center",
+            paddingTop: "10px"
+          }}
+        />
+        <h1 className="symbol">{props.symbol}</h1>
+        <NavLink
+          exact
+          to="/auth/table/buy"
+          className="name"
+          state={{
+            id: props.key,
+            name: props.Name,
+            price: props.price,
+            symbol: props.symbol,
+            image: props.image,
+            check:props.check
+          }}
+        >
+          <div>
+            <h1 className="name">{props.Name}</h1>{" "}
+          </div>
+        </NavLink>
+        <h1  style={{color:props.low24<props.price?"green":"red"}}>{props.price}</h1>
+        <h1 className="change">{props.changePercent}</h1>
+        <h1 className="high">{props.high24}</h1>
+        <h1 className="low">{props.low24}</h1>
+      </div>
+    </div>
+  );
+}
+
+export default Items;
+
+
+
+import React, { useState } from "react";
+import "./Home.css";
+import axios from "axios";
+
+import { NavLink, useLocation } from "react-router-dom";
+
+
+
+
+function Buy() {
+  const location = useLocation();
+  const [value, newValue] = useState();
+  const price =location.state.price;
+  const Number = price * value;
+  const Num = Number.toFixed(4);
+  const image = location.state.image;
+  function handleChange(event) {
+    newValue(event.target.value);
+  }
+
+  function handleClick(){ 
+
+    
+     axios.post('http://localhost:5000/data', { name: location.state.name, stocks:value,image:image,price:price,check:location.state.check },
+      {
+        
+        headers: {
+          'Content-Type': 'application/json',
+         
+          },
+          withCredentials:true
+        }
+      ).then(
+
+      
+(response)=>{
+  console.log(response.data);
+}
+      )  
+  };
+
+
+
+
+  
+
+
+  return (
+    <div className="buyCointainer">
+      <form>
+        <div className="boxer">
+          <div>
+            <img className="image2" src={location.state.image} alt="auto" />
+          </div>
+          <div>
+            <h1>SYMBOL :{location.state.symbol}</h1>
+          </div>
+
+          <div>
+            <h1>COIN : {location.state.name}</h1>
+          </div>
+          <div>
+            <h1>PRICE : {location.state.price}</h1>
+          </div>
+          <div>
+            <h1>
+              QUANTITY :
+              <input
+                onChange={handleChange}
+                className="input"
+                number="Number"
+                type="Number"
+                minLength="1"
+              ></input>
+            </h1>
+          </div>
+          <div>
+            <h1>TOTAL AMOUNT :{Num} INR </h1>
+          </div>
+          <NavLink
+            exact
+            to="/auth/portfolio"
+            state={{
+              image: location.state.image,
+              name: location.state.name,
+              price: location.state.price,
+              symbol: location.state.symbol,
+              quantity: value,
+              buyValue: Num,
+              check:location.state.check,
+            }}
+          >
+            <button className="button2" type="submit" to="/portfolio"   onClick={handleClick}>
+              BUY
+            </button>
+          </NavLink>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+export default Buy;
+
+
+import axios from "axios";
+import React, { useEffect, useState } from "react";
+import "./Home.css"
+import  { NavLink } from "react-router-dom";
+
+function Box(props){
+  
+  const [data,setData] =useState("")
+  const Name =props.check;
+const invest= parseFloat(props.price*props.quantity);
+const currentINvest= parseFloat(props.quantity*data);
+const profit = currentINvest-invest;
+
+useEffect(() =>{
+  console.log("check");
+  axios.get("https://api.coingecko.com/api/v3/simple/price?ids="+[Name]+ "&vs_currencies=inr").then(
+    (response)=>{
+      if(response){
+
+      
+      setData(response.data[Name].inr);
+ 
+      }else{
+        console.log('error');
+      }
+ 
+
+    }
+  )
+setInterval(1000);
+},[])
+
+ 
+return(
+<div>
+    <div className="portcointainer">
+    <div className="nname">
+      <img
+        classNmae="image4"
+        src={props.image}
+        alt="aut"
+        style={{ width: "40px", paddingTop: "2px" }}
+      />
+      <h1>{props.symbol}</h1>
+      <h1>{props.name}</h1>
+    </div>
+    <div>{props.price}.</div>
+    <div>{props.quantity}</div>
+    <div>{currentINvest}</div>
+    <div className="aa" style={{ fontSize:"110%",fontWeight:"400px",color: profit >= 0 ? "green" : "red" }} >{profit}</div>
+  <NavLink  to={"/auth/portfolio/sell"} state={{image:props.image, name:props.name , symbol:props.symbol , price:props.price , total:props.quantity ,current:currentINvest}}> <div className="sbut">SELL</div> </NavLink>
+  </div>
+
+</div>
+
+)
+
+}
+
+export default Box;
+
+import React, { useState } from "react";
+import { NavLink, useLocation } from "react-router-dom";
+import "./Items.css"
+import axios from "axios";
+function Sell() {
+  const location = useLocation();
+  const data = location.state
+  const[total,setTotal] =useState();
+  const[check,setCheck] =useState(Boolean);
+
+
+  const Price = total*data.price;
+
+
+ 
+
+
+
+
+
+
+function changed(e){
+    e.preventDefault();
+    setTotal(e.target.value);
+    
+
+}
+
+function sell(){
+    const TPrice = total*data.price;
+  console.log(TPrice);
+  
+    if(total>data.total){
+        setCheck(true);
+    }else{
+       
+     console.log(Price);
+
+        axios.post("http://localhost:5000/sell",{total:Price,stocks:total,name:data.name,current:data.current},{
+            header:{
+                "application-type":"application/json"
+            },
+            withCredentials:true
+        })
+        
+    }
+
+   
+}
+
+  return (
+
+
+
+    <div className="sell">
+    
+
+    
+          <div className="sellbox">
+          <div> <img
+          src={data.image}
+          alt="auto"
+          style={{
+            width: "80px",
+         marginLeft:"40%"
+          }} /></div>
+           
+          <div className="sname">{data.name}</div>
+          <div style={{color:"white", fontSize:"40px" , paddingTop:"15px"}}>SELLING PRICE :{data.price}</div>
+
+          <div style={{fontSize:"50px", color:"white",fontWeight:"300rem"}}>Quantity:  <input className="input" autoComplete="false" id="quan" name="quantity" type="number"  style={{width:"100px",alignContent:"center"} }  onChange={changed}></input> </div>
+  
+          <div style={{color:"white", fontSize:"30px" }}>TOTOAL PRICE :  {Price}</div>
+          <div  style={{color:"white", fontSize:"30px" }}>AVAILABLE COINS : {data.total}</div>
+          <div><NavLink exact to={"/auth/portfolio"}><button onClick={sell}>SELL</button></NavLink></div>
+          <div>{check?(<h1>you do not have enough coins</h1>):("success")}</div>
+  </div>
+  <div>
+
+  </div>
+  
+
+    </div>
+    
+   
+  );
+}
+
+export default Sell;
